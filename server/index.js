@@ -48,6 +48,29 @@ async function run() {
         res.status(500).json({ error: "Internal Server Error" });
       }
     });
+
+    //update
+
+    app.put("/user/:id", async (req, res) => {
+      const id = req.params.id;
+      const updatedUser = req.body;
+      console.log(updatedUser);
+
+      const filter = { _id: new ObjectId(id) };
+
+      const option = { upsert: true };
+
+      const updatedProfile = {
+        $set: {
+          name: updatedUser.name,
+          email: updatedUser.email,
+        },
+      };
+
+      const result = await database.updateOne(filter, updatedProfile, option);
+      res.send(result);
+    });
+
     // Define routes after successful connection
     app.post("/users", async (req, res) => {
       const newUser = req.body;

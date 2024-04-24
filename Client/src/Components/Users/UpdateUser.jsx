@@ -2,21 +2,52 @@ import { useLoaderData } from "react-router-dom";
 
 const UpdateUser = () => {
   const user = useLoaderData();
+
+  const handleUpdate = (e) => {
+    e.preventDefault();
+    const form = e.target;
+    const name = form.name.value;
+    const email = form.email.value;
+    const updateUser = { name, email };
+
+    fetch(`http://localhost:3000/user/${user._id}`, {
+      method: "PUT",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(updateUser),
+    })
+      .then((res) => {
+        if (!res.ok) {
+          throw new Error("Network response was not ok");
+        }
+        return res.json();
+      })
+      .then((data) => {
+        console.log(data);
+      })
+      .catch((error) => {
+        console.error("Error:", error);
+      });
+  };
   return (
     <div>
       <p>Hi</p>
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        <div className="p-6 bg-white rounded-lg shadow-md">
+      <form onSubmit={handleUpdate}>
+        <div className="p-6 space-y-4 bg-white rounded-lg shadow-md">
           <input
             className="text-xl font-semibold"
-            placeholder={user.name}
+            defaultValue={user.name}
+            name="name"
           ></input>
-          <p className="text-gray-600">{user.email}</p>
-          <div className="flex justify-between mt-4">
-            <button className="w-full btn btn-outline">Save Change</button>
-          </div>
+          <input
+            className="text-gray-600"
+            name="email"
+            defaultValue={user.email}
+          ></input>
+          <button className="w-full btn btn-outline">Save Change</button>
         </div>
-      </div>
+      </form>
     </div>
   );
 };
