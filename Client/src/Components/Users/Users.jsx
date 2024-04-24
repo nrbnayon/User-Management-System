@@ -1,37 +1,71 @@
+import { useState } from "react";
+import { useLoaderData } from "react-router-dom";
+
 const Users = () => {
+  const usersData = useLoaderData();
+
+  const [users, setUsers] = useState(usersData);
+
   const handleAddUser = async (e) => {
     e.preventDefault();
 
     const form = e.target;
-
     const name = form.name.value;
     const email = form.email.value;
     const user = { name, email };
-    console.log(user);
 
-    try {
-      const response = await fetch("http://localhost:3000/users", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(user),
+    fetch("http://localhost:3000/users", {
+      method: "POST",
+      headers: {
+        "content-type": "application/json",
+      },
+      body: JSON.stringify(user),
+    })
+      .then((res) => res.json())
+      .then((data) => {
+        if (data.insertedId) {
+          alert("User added successfully");
+          form.reset();
+          setUsers([...users, user]);
+        }
+      })
+      .catch((error) => {
+        console.error("Error adding user:", error);
+        alert("An error occurred while adding user");
       });
-      if (!response.ok) {
-        throw new Error("Failed to create user");
-      }
+  };
 
-      const newUser = await response.json();
-      console.log("New User", newUser);
-    } catch (error) {
-      console.error("Error creating user:", error);
-    }
+  const handleDelete = (_id) => {
+    console.log("Deleting user:", _id);
+    fetch(`http://localhost:3000/users/${_id}`, {
+      method: "DELETE",
+    })
+      .then((res) => {
+        if (!res.ok) {
+          throw new Error("Network response was not ok");
+        }
+        return res.json();
+      })
+      .then((data) => {
+        console.log("Delete response:", data);
+        if (data.deletedCount > 0) {
+          alert("User deleted successfully");
+          setUsers(users.filter((user) => user._id !== _id));
+        } else {
+          alert("Delete failed: User not found");
+        }
+      })
+      .catch((error) => {
+        console.error("Error deleting user:", error);
+        alert("An error occurred while deleting user");
+      });
   };
 
   return (
     <div>
-      <h3 className="text-3xl text-center font-bold">User Management System</h3>
-      <h3 className="text-xl text-center font-bold"></h3>
+      <h3 className="text-3xl text-center font-bold">
+        User Management System {users.length}
+      </h3>
       <div>
         <form onSubmit={handleAddUser} className="max-w-md mx-auto">
           <div className="mb-4">
@@ -39,7 +73,6 @@ const Users = () => {
               type="text"
               placeholder="Name"
               name="name"
-              // onChange={handleInputChange}
               className="border border-gray-300 rounded-md px-4 py-2 w-full focus:outline-none focus:border-blue-500"
             />
           </div>
@@ -48,7 +81,6 @@ const Users = () => {
               type="text"
               name="email"
               placeholder="Email"
-              // onChange={handleInputChange}
               className="border border-gray-300 rounded-md px-4 py-2 w-full focus:outline-none focus:border-blue-500"
             />
           </div>
@@ -59,6 +91,14 @@ const Users = () => {
             Submit
           </button>
         </form>
+        <div className="text-center">
+          {users.map((user, i) => (
+            <li key={i}>
+              {user.name} : {user.email}{" "}
+              <button onClick={() => handleDelete(user._id)}>X</button>
+            </li>
+          ))}
+        </div>
       </div>
     </div>
   );
@@ -166,3 +206,24 @@ export default Users;
 // };
 
 // export default Users;
+
+// try {
+//   const response = await fetch("http://localhost:3000/users", {
+//     method: "POST",
+//     headers: {
+//       "Content-Type": "application/json",
+//     },
+//     body: JSON.stringify(user),
+//   });
+//   if (!response.ok) {
+//     throw new Error("Failed to create user");
+//   }
+
+//   const newUser = await response.json();
+//   console.log("New User", newUser);
+//   if (newUser.insertedId) {
+//     alert("Users added Successful");
+//   }
+// } catch (error) {
+//   console.error("Error creating user:", error);
+// }
