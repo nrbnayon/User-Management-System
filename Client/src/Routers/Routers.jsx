@@ -9,6 +9,7 @@ import PrivateRoutes from "./PrivateRoutes";
 import Villas from "../Components/Villas/Villas";
 import Villa from "../Components/Villas/Villa";
 import Users from "../Components/Users/Users";
+import UpdateUser from "../Components/Users/UpdateUser";
 
 const router = createBrowserRouter([
   {
@@ -41,6 +42,12 @@ const router = createBrowserRouter([
         path: "/users",
         element: <Users />,
         loader: () => fetch("http://localhost:3000/users"),
+      },
+      {
+        path: "/update/:id",
+        element: <UpdateUser />,
+        loader: ({ params }) =>
+          fetch(`http://localhost:3000/users/${params.id}`),
       },
       {
         path: "/villa/:id",

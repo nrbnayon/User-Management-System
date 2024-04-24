@@ -11,8 +11,7 @@ const port = process.env.PORT || 3000;
 app.use(cors());
 app.use(express.json());
 
-const uri =
-  "mongodb+srv://nrbnayon:zioZ0Gt1BywexajS@ums.n1nbo0a.mongodb.net/?retryWrites=true&w=majority&appName=UMS";
+const uri = process.env.MONGODB;
 
 // Create a MongoClient with a MongoClientOptions object to set the Stable API version
 const client = new MongoClient(uri, {
@@ -29,6 +28,18 @@ async function run() {
     const database = client.db("userDB").collection("users");
 
     app.get("/users", async (req, res) => {
+      try {
+        const id = req.params.id;
+        const query = { _id: new ObjectId(id) };
+        const user = await database.findOne(query);
+        res.send(user);
+      } catch (error) {
+        console.error("Error fetching users:", error);
+        res.status(500).json({ error: "Internal Server Error" });
+      }
+    });
+
+    app.get("/users/:id", async (req, res) => {
       try {
         const user = await database.find().toArray();
         res.send(user);
