@@ -10,6 +10,7 @@ import Villas from "../Components/Villas/Villas";
 import Villa from "../Components/Villas/Villa";
 import Users from "../Components/Users/Users";
 import UpdateUser from "../Components/Users/UpdateUser";
+import UserList from "../Components/Users/UserList";
 
 const router = createBrowserRouter([
   {
@@ -41,6 +42,10 @@ const router = createBrowserRouter([
       {
         path: "/users",
         element: <Users />,
+      },
+      {
+        path: "/userslist",
+        element: <UserList />,
         loader: () => fetch("http://localhost:3000/users"),
       },
       {

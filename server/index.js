@@ -29,9 +29,7 @@ async function run() {
 
     app.get("/users", async (req, res) => {
       try {
-        const id = req.params.id;
-        const query = { _id: new ObjectId(id) };
-        const user = await database.findOne(query);
+        const user = await database.find().toArray();
         res.send(user);
       } catch (error) {
         console.error("Error fetching users:", error);
@@ -41,7 +39,9 @@ async function run() {
 
     app.get("/users/:id", async (req, res) => {
       try {
-        const user = await database.find().toArray();
+        const id = req.params.id;
+        const query = { _id: new ObjectId(id) };
+        const user = await database.findOne(query);
         res.send(user);
       } catch (error) {
         console.error("Error fetching users:", error);
@@ -68,15 +68,35 @@ async function run() {
     app.delete("/users/:id", async (req, res) => {
       const id = new ObjectId(req.params.id);
 
-      const query = { _id: id };
-      const result = await database.deleteOne(query);
+      try {
+        const query = { _id: id };
+        const result = await database.deleteOne(query);
 
-      if (result.deletedCount === 1) {
-        console.log("Successfully deleted one document.");
-      } else {
-        console.log("No documents matched the query. Deleted 0 documents.");
+        if (result.deletedCount === 1) {
+          console.log("Successfully deleted one document.");
+          res.json({ success: true });
+        } else {
+          console.log("No documents matched the query. Deleted 0 documents.");
+          res.json({ success: false });
+        }
+      } catch (error) {
+        console.error("Error deleting document:", error);
+        res.status(500).json({ error: "Error deleting document" });
       }
     });
+
+    // app.delete("/users/:id", async (req, res) => {
+    //   const id = new ObjectId(req.params.id);
+
+    //   const query = { _id: id };
+    //   const result = await database.deleteOne(query);
+
+    //   if (result.deletedCount === 1) {
+    //     console.log("Successfully deleted one document.");
+    //   } else {
+    //     console.log("No documents matched the query. Deleted 0 documents.");
+    //   }
+    // });
 
     app.get("/", (req, res) => {
       res.send("Simple crud is running");

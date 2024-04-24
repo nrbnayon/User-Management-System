@@ -1,11 +1,6 @@
-import { useState } from "react";
-import { Link, useLoaderData } from "react-router-dom";
+import { Link } from "react-router-dom";
 
 const Users = () => {
-  const usersData = useLoaderData();
-
-  const [users, setUsers] = useState(usersData);
-
   const handleAddUser = async (e) => {
     e.preventDefault();
 
@@ -26,7 +21,6 @@ const Users = () => {
         if (data.insertedId) {
           alert("User added successfully");
           form.reset();
-          setUsers([...users, user]);
         }
       })
       .catch((error) => {
@@ -35,37 +29,9 @@ const Users = () => {
       });
   };
 
-  const handleDelete = (_id) => {
-    console.log("Deleting user:", _id);
-    fetch(`http://localhost:3000/users/${_id}`, {
-      method: "DELETE",
-    })
-      .then((res) => {
-        if (!res.ok) {
-          throw new Error("Network response was not ok");
-        }
-        return res.json();
-      })
-      .then((data) => {
-        console.log("Delete response:", data);
-        if (data.deletedCount > 0) {
-          alert("User deleted successfully");
-          setUsers(users.filter((user) => user._id !== _id));
-        } else {
-          alert("Delete failed: User not found");
-        }
-      })
-      .catch((error) => {
-        console.error("Error deleting user:", error);
-        alert("An error occurred while deleting user");
-      });
-  };
-
   return (
     <div>
-      <h3 className="text-3xl text-center font-bold">
-        User Management System {users.length}
-      </h3>
+      <h3 className="text-3xl text-center font-bold">User Management System</h3>
       <div>
         <form onSubmit={handleAddUser} className="max-w-md mx-auto">
           <div className="mb-4">
@@ -88,20 +54,12 @@ const Users = () => {
             type="submit"
             className="bg-blue-500 w-full hover:bg-blue-600 text-white font-semibold py-2 px-4 rounded-md focus:outline-none focus:shadow-outline"
           >
-            Submit
+            Add User
           </button>
         </form>
-        <div className="text-center">
-          {users.map((user, i) => (
-            <li key={i}>
-              {user.name} : {user.email}{" "}
-              <Link to={`/update/${user._id}`}>
-                <button>Update</button>
-              </Link>
-              <button onClick={() => handleDelete(user._id)}>X</button>
-            </li>
-          ))}
-        </div>
+        <Link to="/userslist">
+          <button className="w-full btn btn-outline mt-4">User List</button>
+        </Link>
       </div>
     </div>
   );
